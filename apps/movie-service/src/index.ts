@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000"], // hoặc domain production nếu có
+    origin: ["http://localhost:3000", "http://localhost:5000"],
     credentials: true,
   })
 );

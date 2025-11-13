@@ -15,8 +15,8 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "*", // 🔹 chỗ này là 'origin' chứ không phải 'original'
-    credentials: true, // 🔹 chỗ này là 'credentials' chứ không phải 'credential'
+    origin: ["http://localhost:3000", "http://localhost:5000"],
+    credentials: true,
   })
 );
 connectDB();
