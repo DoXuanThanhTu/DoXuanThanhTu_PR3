@@ -1,0 +1,59 @@
+# ───────────────
+# Node & TypeScript
+# ───────────────
+node_modules/
+dist/
+build/
+lib/
+out/
+*.tsbuildinfo
+
+# ───────────────
+# Environment & Local Config
+# ───────────────
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+
+# ───────────────
+# Logs & Debug
+# ───────────────
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+logs/
+debug.log
+*.pid
+*.seed
+*.pid.lock
+
+# ───────────────
+# Cache & Temp
+# ───────────────
+.cache/
+.tmp/
+temp/
+coverage/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ───────────────
+# Monorepo / Workspace
+# ───────────────
+.pnpm-store/
+.pnp.*
+.workspace/
+*.tgz
+
+# ───────────────
+# Docker / Runtime / Misc
+# ───────────────
+docker-compose.override.yml
+*.local.yml
+*.swp
+*.swo
