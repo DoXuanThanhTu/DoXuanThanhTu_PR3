@@ -2,10 +2,12 @@
   "name": "user-service",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index.ts",
   "type": "module",
   "scripts": {
     "dev": "pnpm dlx tsx --env-file=.env --watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "check-types": "tsc --noEmit"
   },
   "keywords": [],
