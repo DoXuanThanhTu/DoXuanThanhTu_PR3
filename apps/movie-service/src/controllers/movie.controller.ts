@@ -1,6 +1,12 @@
 // controllers/movies.controller.ts
 import { Request, Response } from "express";
-import { Movie } from "@repo/database";
+import {
+  Episode,
+  Franchise,
+  Movie,
+  Server,
+  isValidObjectId,
+} from "@repo/database";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
 
 export const getAllMovies = async (req: AuthRequest, res: Response) => {
@@ -151,5 +157,97 @@ export const deleteMovie = async (req: Request, res: Response) => {
     res.json({ success: true, message: "Movie deleted" });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Lấy chi tiết 1 movie cùng các tập phim và franchise liên quan
+ */
+export const getMovieFullDetails = async (req: Request, res: Response) => {
+  try {
+    const { idOrSlug } = req.params;
+    if (!idOrSlug) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing movie identifier",
+      });
+    }
+
+    // 1️⃣ Tìm movie bằng ID hoặc slug
+    const movie = isValidObjectId(idOrSlug)
+      ? await Movie.findById(idOrSlug).lean()
+      : await Movie.findOne({ slug: idOrSlug }).lean();
+
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found",
+      });
+    }
+
+    // 2️⃣ Lấy danh sách server của movie này
+    const servers = await Server.find({ movie_id: movie._id })
+      .sort({ priority: 1 })
+      .lean();
+
+    // 3️⃣ Gắn episodes vào từng server
+    const serversWithEpisodes = await Promise.all(
+      servers.map(async (server) => {
+        const eps = await Episode.find({ server_id: server._id })
+          .sort({ episode_number: 1 })
+          .lean();
+        return { ...server, episodes: eps };
+      })
+    );
+
+    // 4️⃣ Nếu movie có franchise → lấy thêm thông tin franchise & các movie khác
+    let franchise = null;
+    let relatedMovies: any[] = [];
+
+    if (movie.franchise_id) {
+      franchise = await Franchise.findById(movie.franchise_id).lean();
+
+      const moviesInFranchise = await Movie.find({
+        franchise_id: movie.franchise_id,
+        _id: { $ne: movie._id },
+      })
+        .sort({ release_date: 1 })
+        .lean();
+
+      // Gắn servers và episodes cho từng related movie
+      relatedMovies = await Promise.all(
+        moviesInFranchise.map(async (m) => {
+          const relServers = await Server.find({ movie_id: m._id })
+            .sort({ priority: 1 })
+            .lean();
+
+          const relServersWithEpisodes = await Promise.all(
+            relServers.map(async (s) => {
+              const eps = await Episode.find({ server_id: s._id })
+                .sort({ episode_number: 1 })
+                .lean();
+              return { ...s, episodes: eps };
+            })
+          );
+
+          return { ...m, servers: relServersWithEpisodes };
+        })
+      );
+    }
+
+    // 5️⃣ Trả kết quả
+    res.json({
+      success: true,
+      foundBy: isValidObjectId(idOrSlug) ? "id" : "slug",
+      data: {
+        movie,
+        servers: serversWithEpisodes,
+        franchise,
+        relatedMovies,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching movie details:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

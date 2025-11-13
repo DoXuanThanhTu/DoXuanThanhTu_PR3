@@ -1,89 +1,116 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import { Franchise, Movie } from "@repo/database";
-import { AuthRequest } from "../middlewares/auth.middleware.js";
+import { Request, Response } from "express";
+import { Franchise } from "@repo/database";
 
-// ✅ asyncHandler giữ nguyên
-export const asyncHandler =
-  <T extends Request = Request>(
-    fn: (req: T, res: Response, next: NextFunction) => Promise<any>
-  ): RequestHandler =>
-  (req, res, next) => {
-    Promise.resolve(fn(req as T, res, next)).catch(next);
-  };
-
-// ✅ Helper response
-const handleResponse = (
-  res: Response,
-  status: number,
-  success: boolean,
-  data?: any,
-  message?: string
-) => {
-  res.status(status).json({ success, data, message });
-};
-
-// ✅ Thêm type annotation cho mỗi export
-export const getAllFranchises: RequestHandler = asyncHandler<AuthRequest>(
-  async (req, res) => {
-    const franchises = await Franchise.find().lean();
-    handleResponse(res, 200, true, franchises);
-  }
-);
-
-export const getFranchiseDetail: RequestHandler = asyncHandler<AuthRequest>(
-  async (req, res) => {
-    const { idOrSlug } = req.params;
-
-    const franchise =
-      (await Franchise.findById(idOrSlug).lean()) ||
-      (await Franchise.findOne({ slug: idOrSlug }).lean());
-
-    if (!franchise)
-      return handleResponse(res, 404, false, null, "Không tìm thấy franchise");
-
-    const movies = await Movie.find({
-      $or: [
-        { franchise_id: franchise._id },
-        { "franchise_id._id": franchise._id },
-      ],
-    })
-      .select("_id slug titles poster_url banner_url release_date type")
+/**
+ * Lấy danh sách tất cả franchise
+ */
+export const getAllFranchises = async (req: Request, res: Response) => {
+  try {
+    const franchises = await Franchise.find()
+      .sort({ popularity_score: -1 })
       .lean();
 
-    handleResponse(res, 200, true, { ...franchise, movies });
+    res.json({ success: true, data: franchises });
+  } catch (err) {
+    console.error("Error fetching franchises:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-);
+};
 
-export const createFranchise: RequestHandler = asyncHandler<AuthRequest>(
-  async (req, res) => {
-    const franchise = new Franchise(req.body);
-    await franchise.save();
-    handleResponse(res, 201, true, franchise);
-  }
-);
+/**
+ * Lấy chi tiết franchise theo slug hoặc id
+ */
+export const getFranchiseBySlugOrId = async (req: Request, res: Response) => {
+  try {
+    const { slugOrId } = req.params;
 
-export const updateFranchise: RequestHandler = asyncHandler<AuthRequest>(
-  async (req, res) => {
-    const { id } = req.params;
-    const updated = await Franchise.findByIdAndUpdate(id, req.body, {
-      new: true,
+    const franchise = await Franchise.findOne({
+      $or: [{ slug: slugOrId }, { _id: slugOrId }],
     }).lean();
 
-    if (!updated)
-      return handleResponse(res, 404, false, null, "Không tìm thấy franchise");
+    if (!franchise) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Franchise not found" });
+    }
 
-    handleResponse(res, 200, true, updated);
+    res.json({ success: true, data: franchise });
+  } catch (err) {
+    console.error("Error fetching franchise:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-);
+};
 
-export const deleteFranchise: RequestHandler = asyncHandler<AuthRequest>(
-  async (req, res) => {
-    const { id } = req.params;
-    const deleted = await Franchise.findByIdAndDelete(id);
+/**
+ * Tạo mới một franchise
+ */
+export const createFranchise = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.body;
 
-    if (!deleted)
-      return handleResponse(res, 404, false, null, "Không tìm thấy franchise");
+    const existing = await Franchise.findOne({ slug });
+    if (existing) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Slug already exists" });
+    }
 
-    handleResponse(res, 200, true, null, "Đã xóa thành công");
+    const franchise = new Franchise(req.body);
+    await franchise.save();
+
+    res.status(201).json({ success: true, data: franchise });
+  } catch (err) {
+    console.error("Error creating franchise:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-);
+};
+
+/**
+ * Cập nhật franchise theo slug hoặc id
+ */
+export const updateFranchise = async (req: Request, res: Response) => {
+  try {
+    const { slugOrId } = req.params;
+
+    const updated = await Franchise.findOneAndUpdate(
+      { $or: [{ slug: slugOrId }, { _id: slugOrId }] },
+      req.body,
+      { new: true }
+    );
+
+    if (!updated) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Franchise not found" });
+    }
+
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    console.error("Error updating franchise:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+/**
+ * Xóa franchise theo slug hoặc id
+ */
+export const deleteFranchise = async (req: Request, res: Response) => {
+  try {
+    const { slugOrId } = req.params;
+
+    const deleted = await Franchise.findOneAndDelete({
+      $or: [{ slug: slugOrId }, { _id: slugOrId }],
+    });
+
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Franchise not found" });
+    }
+
+    res.json({ success: true, message: "Franchise deleted" });
+  } catch (err) {
+    console.error("Error deleting franchise:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

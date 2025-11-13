@@ -6,6 +6,7 @@ import {
   updateMovie,
   deleteMovie,
   getMovieBySlug,
+  getMovieFullDetails,
 } from "../controllers/movie.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/role.middleware.js";
@@ -16,7 +17,7 @@ const router: Router = express.Router();
 router.get("/", getAllMovies);
 router.get("/id/:id", getMovieById);
 router.get("/slug/:slug", getMovieBySlug);
-
+router.get("/:idOrSlug", getMovieFullDetails);
 // Admin only
 router.post("/", authMiddleware, isAdmin, createMovie);
 router.put("/:id", authMiddleware, isAdmin, updateMovie);
