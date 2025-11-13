@@ -32,7 +32,7 @@ const FranchiseSchema = new Schema(
     ...BaseDocumentFields,
     titles: { type: [LocalizedTitleSchema], required: true },
     default_lang: { type: String, default: "en" },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, required: true },
     description: LocalizedTextSchema,
     genres: [String],
     origin_country: String,
@@ -53,7 +53,7 @@ const MovieSchema = new Schema(
     franchise_id: { type: Schema.Types.ObjectId, ref: "Franchise" },
     titles: { type: [LocalizedTitleSchema], required: true },
     default_lang: { type: String, default: "en" },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, required: true },
     description: LocalizedTextSchema,
     type: {
       type: String,
@@ -198,7 +198,6 @@ const EpisodeSchema = new Schema(
 FranchiseSchema.index({ slug: 1 }, { unique: true });
 MovieSchema.index({ franchise_id: 1 });
 MovieSchema.index({ slug: 1 }, { unique: true });
-// MovieSchema.index({ "titles.lang": 1, "titles.title": "text" });
 MovieSchema.index({ popularity_score: -1 });
 MovieSchema.index({ visibility_scope: 1, featured: -1 });
 MovieSchema.index({ release_date: -1 });
