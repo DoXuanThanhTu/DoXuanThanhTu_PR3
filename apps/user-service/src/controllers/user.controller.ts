@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { User } from "@repo/database";
+import { isValidObjectId, User } from "@repo/database";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { isValidObjectId } from "mongoose";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -16,6 +15,11 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
+    if (!req.params.id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing user ID" });
+    }
     if (!isValidObjectId(req.params.id)) {
       return res
         .status(400)
@@ -66,6 +70,11 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
+    if (!req.params.id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing user ID" });
+    }
     if (!isValidObjectId(req.params.id)) {
       return res
         .status(400)
@@ -90,6 +99,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
+    if (!req.params.id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing user ID" });
+    }
     if (!isValidObjectId(req.params.id)) {
       return res
         .status(400)
