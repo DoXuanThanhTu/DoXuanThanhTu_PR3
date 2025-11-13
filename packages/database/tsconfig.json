@@ -1,12 +1,18 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
+    "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "target": "ESNext",
+    "outDir": "dist",
+    "rootDir": "./",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": ["index.ts", "connection.ts", "schemas/**/*"]
+  "include": ["index.ts", "connection.ts", "schemas/**/*"],
+  "exclude": ["dist", "node_modules"]
 }
