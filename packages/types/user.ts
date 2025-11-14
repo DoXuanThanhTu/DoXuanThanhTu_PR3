@@ -1,5 +1,5 @@
 // packages/types/user.ts
-import { BaseDocument, RegionCode, DeviceType } from "./common";
+import { BaseDocument, RegionCode, DeviceType } from "./common.js";
 
 // -----------------------------
 // User

@@ -1,5 +1,5 @@
 // packages/types/movie.ts
-import { BaseDocument, LocalizedText } from "./common";
+import { BaseDocument, LocalizedText } from "./common.js";
 
 /**
  * Một tên phim có thể thay đổi tùy theo ngôn ngữ hoặc quốc gia.

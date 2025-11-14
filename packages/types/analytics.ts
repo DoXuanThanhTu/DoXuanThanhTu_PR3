@@ -1,5 +1,5 @@
 // packages/types/analytics.ts
-import { BaseDocument, DeviceType, RegionCode } from "./common";
+import { BaseDocument, DeviceType, RegionCode } from "./common.js";
 
 export interface ViewRecord extends BaseDocument {
   movie_id: string;

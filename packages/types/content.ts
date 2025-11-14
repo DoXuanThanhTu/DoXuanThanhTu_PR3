@@ -1,4 +1,4 @@
-import { BaseDocument, LocalizedText } from "./common";
+import { BaseDocument, LocalizedText } from "./common.js";
 
 /**
  * Bình luận phim hoặc tập phim

@@ -1,5 +1,5 @@
 // packages/types/gamification.ts
-import { BaseDocument } from "./common";
+import { BaseDocument } from "./common.js";
 
 export type QuizType = "text" | "image" | "video";
 export type QuizDifficulty = "easy" | "medium" | "hard";

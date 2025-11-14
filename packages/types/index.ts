@@ -1,7 +1,7 @@
 // packages/types/index.ts
-export * from "./common";
-export * from "./movie";
-export * from "./user";
-export * from "./content";
-export * from "./analytics";
-export * from "./gamification";
+export * from "./common.js";
+export * from "./movie.js";
+export * from "./user.js";
+export * from "./content.js";
+export * from "./analytics.js";
+export * from "./gamification.js";
