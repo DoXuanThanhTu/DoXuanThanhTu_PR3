@@ -6,7 +6,7 @@ import { Episode, Movie, Server } from "@repo/types";
 import ModernPlayer from "../../../components/Player";
 import EpisodesByServer from "../../../components/EpisodesByServer";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL;
 
 export default function WatchPage() {
   const router = useRouter();

@@ -21,7 +21,12 @@ class ServerService {
    * Lấy tất cả server (không filter)
    */
   async getAll() {
-    return Server.find({ is_deleted: false }).sort({ order: 1 });
+    return Server.find({ is_deleted: false })
+      .populate({
+        path: "movie_id",
+        select: "slug titles",
+      })
+      .sort({ order: 1 });
   }
 
   /**
@@ -37,7 +42,14 @@ class ServerService {
     if (query.movie_id) filters.movie_id = query.movie_id;
 
     const [items, total] = await Promise.all([
-      Server.find(filters).sort({ order: 1 }).skip(skip).limit(limit),
+      Server.find(filters)
+        .populate({
+          path: "movie_id",
+          select: "slug titles",
+        })
+        .sort({ order: 1 })
+        .skip(skip)
+        .limit(limit),
 
       Server.countDocuments(filters),
     ]);
@@ -61,7 +73,12 @@ class ServerService {
     return Server.find({
       movie_id: movieId,
       is_deleted: false,
-    }).sort({ order: 1 });
+    })
+      .populate({
+        path: "movie_id",
+        select: "slug titles",
+      })
+      .sort({ order: 1 });
   }
 
   /**
