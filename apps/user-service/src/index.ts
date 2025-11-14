@@ -15,7 +15,12 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5000",
+      "https://web-csr8.onrender.com",
+      "https://admin-y2k3.onrender.com",
+    ],
     credentials: true,
   })
 );
